@@ -10,6 +10,7 @@ interface ProductState {
     key: keyof SalesData;
     direction: 'asc' | 'desc';
   };
+  selectedMonth: string | null;  // New state property for selected month
 }
 
 const initialState: ProductState = {
@@ -19,7 +20,8 @@ const initialState: ProductState = {
   sortConfig: {
     key: 'weekEnding',
     direction: 'desc'
-  }
+  },
+  selectedMonth: null,  // Initialize as null (no month selected initially)
 };
 
 const productSlice = createSlice({
@@ -28,9 +30,12 @@ const productSlice = createSlice({
   reducers: {
     setSortConfig: (state, action: PayloadAction<{ key: keyof SalesData; direction: 'asc' | 'desc' }>) => {
       state.sortConfig = action.payload;
+    },
+    setSelectedMonth: (state, action: PayloadAction<string | null>) => {
+      state.selectedMonth = action.payload;  // Set the selected month
     }
   }
 });
 
-export const { setSortConfig } = productSlice.actions;
+export const { setSortConfig, setSelectedMonth } = productSlice.actions;
 export default productSlice.reducer;

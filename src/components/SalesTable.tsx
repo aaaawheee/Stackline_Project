@@ -8,10 +8,15 @@ const SalesTable: React.FC = () => {
   const dispatch = useDispatch();
   const sales = useSelector((state: RootState) => state.product.data?.sales);
   const sortConfig = useSelector((state: RootState) => state.product.sortConfig);
+  const selectedMonth = useSelector((state: RootState) => state.product.selectedMonth);
 
   if (!sales) return null;
 
-  const sortedData = [...sales].sort((a, b) => {
+  const filteredSales = selectedMonth
+    ? sales.filter((sale) => new Date(sale.weekEnding).toLocaleString('en-US', { month: 'short' }) === selectedMonth)
+    : sales;
+
+  const sortedData = [...filteredSales].sort((a, b) => {
     if (a[sortConfig.key] < b[sortConfig.key]) {
       return sortConfig.direction === 'asc' ? -1 : 1;
     }
