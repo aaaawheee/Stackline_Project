@@ -79,10 +79,10 @@ const SalesChart: React.FC = () => {
     setShowSmoothed(true);  // Enable smoothing for base graph
   };
 
-  // Prepare the X-Axis data for displaying dates when a specific month is selected
-  const xAxisData = selectedMonth
-    ? filteredData.map((item) => new Date(item.weekEnding).toLocaleDateString()) // Show dates
-    : filteredData.map((item) => item.month); // Show months if not specific month
+  // // Prepare the X-Axis data for displaying dates when a specific month is selected
+  // const xAxisData = selectedMonth
+  //   ? filteredData.map((item) => new Date(item.weekEnding).toLocaleDateString()) // Show dates
+  //   : filteredData.map((item) => item.month); // Show months if not specific month
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
