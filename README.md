@@ -29,8 +29,10 @@ The product is displayed on the left side of the page, with necessary tags and o
     - Base Graph (Smoothed):
       - This graph displays the averaged retail and wholesale sales for each month and year. It is useful to see an overall trend of the sales data.
     - Actual Data Points:
-      - By hovering and clicking on each month, the graph will display the actual retail and wholesale sales data points for that month.
+      - Month-wise Activation: The graph is designed to show data for each individual month. By hovering over and clicking on the desired month, users can view the specific sales data for that period.
       - You can restore to the Base Graph by using the Restore button on the graph.
+      
+Even Same Sorting animation (reflected in graph also) works month-wise, users can sort everything in both Base & Month-wise graphs as well.
 ### Table
   - The table below the graph shows the same data as the graph, in tabular format.
   - Sorting:
