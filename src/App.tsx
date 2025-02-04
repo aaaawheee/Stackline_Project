@@ -4,6 +4,7 @@ import { store } from './store';
 import ProductInfo from './components/ProductInfo';
 import SalesChart from './components/SalesChart';
 import SalesTable from './components/SalesTable';
+import logo from "./stackline_logo (1).png";
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
               <div className="flex">
                 <div className="flex-shrink-0 flex items-center">
                   <img 
-                    src="https://raw.githubusercontent.com/stackline/stackline-logo/main/stackline-logo.png" 
+                    src={logo}
                     alt="Stackline" 
                     className="h-8 w-auto brightness-0 invert"
                   />
