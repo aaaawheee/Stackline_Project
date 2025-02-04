@@ -8,23 +8,33 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Dot,
 } from 'recharts';
 import type { RootState } from '../store';
 import type { SalesData } from '../types';
 
-const CustomDot = (props: any) => {
-  const { cx, cy, payload } = props;
-  return (
-    <Dot
-      cx={cx}
-      cy={cy}
-      r={4}
-      fill="white"
-      stroke={props.stroke}
-      strokeWidth={2}
-    />
-  );
+// Function to group sorted sales data by month
+const groupDataByMonth = (sales: SalesData[]) => {
+  const monthlyData = new Map();
+
+  sales.forEach(({ weekEnding, retailSales, wholesaleSales }) => {
+    const date = new Date(weekEnding);
+    const month = date.toLocaleString('en-US', { month: 'short' }); // "Mar 2025"
+
+    if (!monthlyData.has(month)) {
+      monthlyData.set(month, { month, retailSales: 0, wholesaleSales: 0, count: 0 });
+    }
+
+    const entry = monthlyData.get(month);
+    entry.retailSales += retailSales;
+    entry.wholesaleSales += wholesaleSales;
+    entry.count += 1;
+  });
+
+  return Array.from(monthlyData.values()).map((entry) => ({
+    month: entry.month,
+    retailSales: entry.retailSales / entry.count, // Averaging data points
+    wholesaleSales: entry.wholesaleSales / entry.count,
+  }));
 };
 
 const SalesChart: React.FC = () => {
@@ -33,79 +43,36 @@ const SalesChart: React.FC = () => {
 
   if (!sales) return null;
 
-  // Sort data according to current sort configuration
+  // Apply sorting before grouping data
   const sortedData = [...sales].sort((a, b) => {
-    if (a[sortConfig.key] < b[sortConfig.key]) {
-      return sortConfig.direction === 'asc' ? -1 : 1;
-    }
-    if (a[sortConfig.key] > b[sortConfig.key]) {
-      return sortConfig.direction === 'asc' ? 1 : -1;
-    }
+    if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
     return 0;
   });
 
-  const formatYAxis = (value: number) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
-    return `$${value}`;
-  };
-
-  const formatTooltip = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  // Group the sorted data by month
+  const monthlySalesData = groupDataByMonth(sortedData);
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-lg font-semibold mb-4">Retail Sales</h2>
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={sortedData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
+          <LineChart data={monthlySalesData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
-              dataKey="weekEnding"
-              tickFormatter={(date) => {
-                const d = new Date(date);
-                return d.toLocaleString('en-US', { month: 'short', day: '2-digit' });
-              }}
+              dataKey="month"
               tick={{ fill: '#666' }}
+              interval={0} // Ensures only one label per month
             />
-            <YAxis
-              tickFormatter={formatYAxis}
-              tick={{ fill: '#666' }}
-              axisLine={false}
-            />
-            <Tooltip
-              formatter={(value: number) => [formatTooltip(value)]}
-              labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
-            />
-            <Line
-              type="monotone"
-              dataKey="retailSales"
-              stroke="#40A9FF"
-              strokeWidth={2}
-              dot={<CustomDot />}
-              activeDot={{ r: 6, fill: "#40A9FF" }}
-              name="Retail Sales"
-            />
-            <Line
-              type="monotone"
-              dataKey="wholesaleSales"
-              stroke="#95A5A6"
-              strokeWidth={2}
-              dot={<CustomDot />}
-              activeDot={{ r: 6, fill: "#95A5A6" }}
-              name="Wholesale Sales"
-            />
+            <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`} tick={{ fill: '#666' }} />
+            <Tooltip formatter={(value: number) => [`$${value.toLocaleString()}`]} />
+
+            {/* Smooth Retail Sales Line */}
+            <Line type="basis" dataKey="retailSales" stroke="#40A9FF" strokeWidth={3} name="Retail Sales" dot={false}/>
+
+            {/* Smooth Wholesale Sales Line */}
+            <Line type="basis" dataKey="wholesaleSales" stroke="#95A5A6" strokeWidth={3} name="Wholesale Sales" dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
